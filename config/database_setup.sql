@@ -1,4 +1,14 @@
 
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    image VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -46,3 +56,12 @@ INSERT IGNORE INTO products (id, name, price, img) VALUES
 (9, 'Mango Smoothie', 35.00, 'mango.png');
 
 INSERT IGNORE INTO rooms (room_no) VALUES (2010), (2011), (2012);
+
+INSERT INTO users (name, email, password, role, image) VALUES
+('Admin User', 'admin@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'admin', NULL),
+('Normal User', 'user@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'user', NULL)
+ON DUPLICATE KEY UPDATE
+name = VALUES(name),
+password = VALUES(password),
+role = VALUES(role),
+image = VALUES(image);

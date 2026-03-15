@@ -159,5 +159,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
     <div class="sidebar-footer">
         <a href="home.php"><i class="fas fa-store me-2"></i>Go to Store</a>
+        <br>
+        <a href="logout.php" class="mt-2 d-inline-block"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
     </div>
 </aside>

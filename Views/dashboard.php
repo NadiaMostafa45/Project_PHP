@@ -1,14 +1,28 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../app/Models/Product.php';
+require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 
-session_start();
+AuthMiddleware::checkAuth();
+
+if (($_SESSION['role'] ?? 'user') !== 'admin') {
+    header('Location: home.php');
+    exit;
+}
 
 // Get stats
 $db = \Config\Database::getInstance()->getConnection();
 
 $productCount = $db->query("SELECT COUNT(*) FROM products")->fetchColumn();
-$availableCount = $db->query("SELECT COUNT(*) FROM products WHERE available = 1")->fetchColumn();
+$availableColumnExistsStmt = $db->query("SHOW COLUMNS FROM products LIKE 'available'");
+$availableColumnExists = $availableColumnExistsStmt && $availableColumnExistsStmt->fetch(PDO::FETCH_ASSOC);
+
+if ($availableColumnExists) {
+    $availableCount = $db->query("SELECT COUNT(*) FROM products WHERE available = 1")->fetchColumn();
+} else {
+    $availableCount = $productCount;
+}
+
 $unavailableCount = $productCount - $availableCount;
 $orderCount = $db->query("SELECT COUNT(*) FROM orders")->fetchColumn();
 $recentOrders = $db->query("SELECT * FROM orders ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);

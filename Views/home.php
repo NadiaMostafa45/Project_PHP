@@ -2,9 +2,21 @@
 
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../app/Models/Product.php';
+require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 
-session_start();
 
+AuthMiddleware::checkAuth();
+
+$displayName = 'Guest';
+if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
+    if (!empty($_SESSION['user']['name'])) {
+        $displayName = $_SESSION['user']['name'];
+    } elseif (!empty($_SESSION['user']['username'])) {
+        $displayName = $_SESSION['user']['username'];
+    } elseif (!empty($_SESSION['user']['email'])) {
+        $displayName = explode('@', $_SESSION['user']['email'])[0];
+    }
+}
 
 try {
     $productModel = new \App\Models\Product();
@@ -85,6 +97,21 @@ if (isset($_GET['action'])) {
             font-weight: 900;
             color: var(--espresso) !important;
             font-size: 1.6rem;
+        }
+
+        .btn-logout {
+            background: var(--espresso);
+            color: var(--latte) !important;
+            border-radius: 12px;
+            padding: 8px 14px !important;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 14px;
+        }
+
+        .btn-logout:hover {
+            background: #2e1a10;
+            color: #fff !important;
         }
 
         .section-title {
@@ -319,8 +346,9 @@ if (isset($_GET['action'])) {
                 <a class="nav-link px-3 fw-bold" href="home.php">Home</a>
                 <a class="nav-link px-3" href="my_orders.php">My Orders</a>
                 <div class="ms-4 bg-white px-3 py-1 rounded-pill shadow-sm">
-                    <span class="small text-muted me-2">Hi,</span><span class="fw-800">Rana Hany</span>
+                    <span class="small text-muted me-2">Hi,</span><span class="fw-800"><?= htmlspecialchars($displayName) ?></span>
                 </div>
+                <a class="btn-logout" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
             </div>
         </div>
     </nav>
