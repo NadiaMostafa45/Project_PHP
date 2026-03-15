@@ -44,6 +44,46 @@ class User {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+    public function getById($id) {
+        $query = "SELECT * FROM users WHERE id = ? LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function update($id, $name, $email, $role, $roomNo, $ext, $image = null, $password = null) {
+        $fields = [
+            'name' => $name,
+            'email' => $email,
+            'role' => $role,
+            'room_no' => $roomNo,
+            'ext' => $ext,
+        ];
+
+        if ($image !== null) {
+            $fields['image'] = $image;
+        }
+
+        if ($password !== null) {
+            $fields['password'] = $password;
+        }
+
+        $setParts = [];
+        $values = [];
+        foreach ($fields as $column => $value) {
+            $setParts[] = "$column = ?";
+            $values[] = $value;
+        }
+
+        $values[] = $id;
+
+        $query = "UPDATE users SET " . implode(', ', $setParts) . " WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+
+        return $stmt->execute($values);
+    }
+
 public function delete($id){
 
     $query = "DELETE FROM users WHERE id = ?";
