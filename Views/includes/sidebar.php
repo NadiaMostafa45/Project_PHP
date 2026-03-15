@@ -132,7 +132,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         <li>
             <a href="users.php" class="<?= $currentPage === 'users.php' ? 'active' : '' ?>">
                 <i class="fas fa-users"></i> All Users
-                <span class="sidebar-badge">Soon</span>
             </a>
         </li>
         <li>

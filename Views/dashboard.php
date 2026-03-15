@@ -264,10 +264,9 @@ $recentOrders = $db->query("SELECT * FROM orders ORDER BY created_at DESC LIMIT 
                     </a>
                 </div>
                 <div class="col-6 col-md-3">
-                    <a href="users.php" class="quick-action" style="opacity: 0.5; pointer-events: none;">
+                    <a href="users.php" class="quick-action">
                         <i class="fas fa-users"></i>
                         <span class="fw-bold d-block">All Users</span>
-                        <small class="text-muted">Coming Soon</small>
                     </a>
                 </div>
                 <div class="col-6 col-md-3">

@@ -80,4 +80,26 @@ class UserController {
             exit;
         }
     }
+    public function index(){
+
+        $search = $_GET['search'] ?? null;
+
+        $user = new User();
+
+        return $user->getAll($search);
+    }
+
+    public function delete(){
+
+        if(isset($_GET['id'])){
+
+            $id = $_GET['id'];
+
+            $user = new User();
+            $user->delete($id);
+
+            header("Location: ../Views/users.php?deleted=1");
+            exit;
+        }
+    }
 }
