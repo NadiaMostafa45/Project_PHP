@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
-    img VARCHAR(255) NOT NULL
+    img VARCHAR(255) NOT NULL,
+    available TINYINT(1) DEFAULT 1
 );
 
 
@@ -32,7 +33,6 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
-
 
 INSERT IGNORE INTO products (id, name, price, img) VALUES 
 (1, 'Espresso Coffee', 25.00, 'coffee.png'),
