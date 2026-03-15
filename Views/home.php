@@ -180,14 +180,14 @@ if (isset($_GET['action'])) {
             border-radius: 15px !important;
         }
 
-        /* تعديل لون الـ Placeholder للـ Textarea ليصبح بيج فاتح */
+       
         .custom-input::placeholder {
             color: var(--latte) !important;
             opacity: 0.7;
             font-style: italic;
         }
 
-        /* --- Custom Professional Room Selection Style --- */
+      
         .deliver-label {
             color: var(--latte) !important;
             font-weight: 800 !important;
