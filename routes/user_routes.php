@@ -19,6 +19,10 @@ switch ($action) {
         }
         break;
 
+    case 'delete':
+        $controller->delete();
+        break;
+
     default:
         header("Location: ../Views/users.php?error=Invalid action");
         exit;
