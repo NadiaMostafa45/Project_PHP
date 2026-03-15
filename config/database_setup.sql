@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    room_no INT DEFAULT NULL,
+    ext VARCHAR(20) DEFAULT NULL,
     image VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,11 +59,13 @@ INSERT IGNORE INTO products (id, name, price, img) VALUES
 
 INSERT IGNORE INTO rooms (room_no) VALUES (2010), (2011), (2012);
 
-INSERT INTO users (name, email, password, role, image) VALUES
-('Admin User', 'admin@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'admin', NULL),
-('Normal User', 'user@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'user', NULL)
+INSERT INTO users (name, email, password, role, room_no, ext, image) VALUES
+('Admin User', 'admin@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'admin', NULL, NULL, NULL),
+('Normal User', 'user@gmail.com', '$2y$10$hqVb./Befmf3GSiVrIMAw.x9vYI.0CHhB.hDm//XACJyef7j2w91u', 'user', NULL, NULL, NULL)
 ON DUPLICATE KEY UPDATE
 name = VALUES(name),
 password = VALUES(password),
 role = VALUES(role),
+room_no = VALUES(room_no),
+ext = VALUES(ext),
 image = VALUES(image);

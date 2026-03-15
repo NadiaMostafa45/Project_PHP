@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\User;
+
+class UserController {
+
+    public function store() {
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $name = trim($_POST['name'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $passwordRaw = $_POST['password'] ?? '';
+            $role = $_POST['role'] ?? 'user';
+            $roomNo = !empty($_POST['room_no']) ? (int) $_POST['room_no'] : null;
+            $ext = !empty($_POST['ext']) ? trim($_POST['ext']) : null;
+
+            $errors = [];
+
+            if ($name === '') {
+                $errors['name'] = 'Name is required.';
+            }
+
+            if ($email === '') {
+                $errors['email'] = 'Email is required.';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = 'Please enter a valid email address.';
+            }
+
+            if ($passwordRaw === '') {
+                $errors['password'] = 'Password is required.';
+            } elseif (strlen($passwordRaw) < 6) {
+                $errors['password'] = 'Password must be at least 6 characters.';
+            }
+
+            if (!in_array($role, ['user', 'admin'], true)) {
+                $errors['role'] = 'Invalid role selected.';
+            }
+
+            if (!empty($errors)) {
+                \AuthMiddleware::startSession();
+                $_SESSION['add_user_errors'] = $errors;
+                $_SESSION['add_user_old'] = [
+                    'name' => $name,
+                    'email' => $email,
+                    'role' => $role,
+                    'room_no' => $roomNo,
+                    'ext' => $ext,
+                ];
+
+                header("Location: ../Views/add_user.php?error=1");
+                exit;
+            }
+
+            $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
+
+            $imageName = null;
+
+            if (!empty($_FILES['image']['name'])) {
+
+                $imageName = time() . "_" . $_FILES['image']['name'];
+
+                $tmp = $_FILES['image']['tmp_name'];
+
+                $path = "../public/assets/images/users/" . $imageName;
+
+                move_uploaded_file($tmp, $path);
+            }
+
+            $user = new User();
+
+            $user->create($name, $email, $password, $role, $roomNo, $ext, $imageName);
+
+            \AuthMiddleware::startSession();
+            unset($_SESSION['add_user_errors'], $_SESSION['add_user_old']);
+
+            header("Location: ../Views/add_user.php?success=1");
+            exit;
+        }
+    }
+    public function index(){
+
+        $search = $_GET['search'] ?? null;
+
+        $user = new User();
+
+        return $user->getAll($search);
+    }
+
+    public function delete(){
+
+        if(isset($_GET['id'])){
+
+            $id = $_GET['id'];
+
+            $user = new User();
+            $user->delete($id);
+
+            header("Location: ../Views/users.php?deleted=1");
+            exit;
+        }
+    }
+
+    public function update(){
+        $id = intval($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            header("Location: ../Views/users.php?error=Invalid user ID");
+            exit;
+        }
+
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $role = $_POST['role'] ?? 'user';
+        $roomNo = !empty($_POST['room_no']) ? (int) $_POST['room_no'] : null;
+        $ext = !empty($_POST['ext']) ? trim($_POST['ext']) : null;
+        $passwordRaw = $_POST['password'] ?? '';
+
+        $errors = [];
+
+        if ($name === '') {
+            $errors['name'] = 'Name is required.';
+        }
+
+        if ($email === '') {
+            $errors['email'] = 'Email is required.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address.';
+        }
+
+        if (!in_array($role, ['user', 'admin'], true)) {
+            $errors['role'] = 'Invalid role selected.';
+        }
+
+        if ($passwordRaw !== '' && strlen($passwordRaw) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters.';
+        }
+
+        if (!empty($errors)) {
+            \AuthMiddleware::startSession();
+            $_SESSION['edit_user_errors'] = $errors;
+            $_SESSION['edit_user_old'] = [
+                'name' => $name,
+                'email' => $email,
+                'role' => $role,
+                'room_no' => $roomNo,
+                'ext' => $ext,
+            ];
+
+            header("Location: ../Views/edit_user.php?id=" . $id . "&error=1");
+            exit;
+        }
+
+        $password = null;
+        if ($passwordRaw !== '') {
+            $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
+        }
+
+        $imageName = null;
+        if (!empty($_FILES['image']['name'])) {
+            $imageName = time() . "_" . $_FILES['image']['name'];
+            $tmp = $_FILES['image']['tmp_name'];
+            $path = "../public/assets/images/users/" . $imageName;
+            move_uploaded_file($tmp, $path);
+        }
+
+        $user = new User();
+        $user->update($id, $name, $email, $role, $roomNo, $ext, $imageName, $password);
+
+        \AuthMiddleware::startSession();
+        unset($_SESSION['edit_user_errors'], $_SESSION['edit_user_old']);
+
+        header("Location: ../Views/users.php?success=updated");
+        exit;
+    }
+}

@@ -35,7 +35,7 @@ class AuthController
             if (count($error) == 0) {
                 try {
                     $db = Database::getInstance()->getConnection();
-                    $stmt = $db->prepare("SELECT id, name, email, password, role FROM users WHERE email = ? LIMIT 1");
+                    $stmt = $db->prepare("SELECT id, name, email, password, role, image FROM users WHERE email = ? LIMIT 1");
                     $stmt->execute([$email]);
                     $user = $stmt->fetch(\PDO::FETCH_ASSOC);
 

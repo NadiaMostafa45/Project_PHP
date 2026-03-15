@@ -8,6 +8,8 @@ require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 AuthMiddleware::checkAuth();
 
 $displayName = 'Guest';
+$profileImage = 'default.png';
+$profileImagePath = '../public/assets/images/users/default.png';
 if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     if (!empty($_SESSION['user']['name'])) {
         $displayName = $_SESSION['user']['name'];
@@ -16,6 +18,15 @@ if (isset($_SESSION['user']) && is_array($_SESSION['user'])) {
     } elseif (!empty($_SESSION['user']['email'])) {
         $displayName = explode('@', $_SESSION['user']['email'])[0];
     }
+
+    if (!empty($_SESSION['user']['image'])) {
+        $profileImage = $_SESSION['user']['image'];
+    }
+}
+
+$candidatePath = __DIR__ . '/../public/assets/images/users/' . $profileImage;
+if (!empty($profileImage) && file_exists($candidatePath)) {
+    $profileImagePath = '../public/assets/images/users/' . $profileImage;
 }
 
 try {
@@ -112,6 +123,24 @@ if (isset($_GET['action'])) {
         .btn-logout:hover {
             background: #2e1a10;
             color: #fff !important;
+        }
+
+        .profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 6px 18px rgba(67, 40, 24, 0.12);
+        }
+
+        .profile-pill img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--cappuccino);
         }
 
         .section-title {
@@ -345,8 +374,12 @@ if (isset($_GET['action'])) {
             <div class="navbar-nav ms-auto align-items-center">
                 <a class="nav-link px-3 fw-bold" href="home.php">Home</a>
                 <a class="nav-link px-3" href="my_orders.php">My Orders</a>
-                <div class="ms-4 bg-white px-3 py-1 rounded-pill shadow-sm">
-                    <span class="small text-muted me-2">Hi,</span><span class="fw-800"><?= htmlspecialchars($displayName) ?></span>
+                <div class="ms-4 profile-pill">
+                    <img src="<?= htmlspecialchars($profileImagePath) ?>" alt="Profile">
+                    <div>
+                        <span class="small text-muted me-1">Hi,</span>
+                        <span class="fw-800"><?= htmlspecialchars($displayName) ?></span>
+                    </div>
                 </div>
                 <a class="btn-logout" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
             </div>
