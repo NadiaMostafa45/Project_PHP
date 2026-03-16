@@ -13,7 +13,7 @@ class Database
     private $host = "localhost";
     private $db_name = "cafeteria";
     private $username = "root";
-    private $password = "";
+    private $password ="";
 
     private function __construct()
     {

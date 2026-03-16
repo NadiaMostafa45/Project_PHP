@@ -4,12 +4,19 @@ require_once __DIR__ . "/../app/Middleware/AuthMiddleware.php";
 
 AuthMiddleware::startSession();
 
+if (AuthMiddleware::isAuthenticated()) {
+    AuthMiddleware::redirectByRole();
+}
+
 $errors = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
-    $authController = new AuthController();
-    $result = $authController->forgetPassword();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signup'])) {
+    $auth = new AuthController();
+    $result = $auth->register();
     $errors = is_array($result) ? $result : [$result];
 }
+
+$oldName = htmlspecialchars($_POST['name'] ?? '');
+$oldEmail = htmlspecialchars($_POST['email'] ?? '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,16 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forget Password | Cafeteria</title>
+    <title>Sign Up | Cafeteria</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --latte: #f5ebe0;
             --cappuccino: #d4a373;
             --espresso: #432818;
-            --cream: #fefae0;
             --glass: rgba(255, 255, 255, 0.7);
         }
 
@@ -49,9 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
             padding: 24px;
         }
 
-        .forgot-card {
+        .signup-card {
             width: 100%;
-            max-width: 520px;
+            max-width: 560px;
             background: var(--glass);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.45);
@@ -90,25 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
             box-shadow: 0 0 0 0.2rem rgba(212, 163, 115, 0.25);
         }
 
-        .btn-reset {
-            background: var(--espresso);
-            color: #fff;
-            border: 0;
-            border-radius: 16px;
-            padding: 13px;
-            width: 100%;
-            font-weight: 800;
-            letter-spacing: 0.2px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .btn-reset:hover {
-            background: var(--cappuccino);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(67, 40, 24, 0.2);
-            color: var(--espresso);
-        }
-
         .password-wrap {
             position: relative;
         }
@@ -133,6 +121,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
             padding-right: 42px;
         }
 
+        .btn-signup {
+            background: var(--espresso);
+            color: #fff;
+            border: 0;
+            border-radius: 16px;
+            padding: 13px;
+            width: 100%;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-signup:hover {
+            background: var(--cappuccino);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(67, 40, 24, 0.2);
+            color: var(--espresso);
+        }
+
         .helper-link {
             color: var(--espresso);
             font-weight: 600;
@@ -147,7 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
         .alert {
             border-radius: 14px;
             border: 0;
-            list-style: none;
         }
 
         @keyframes fadeUp {
@@ -165,9 +171,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
 </head>
 
 <body>
-    <main class="forgot-card">
-        <h1 class="brand"><i class="fas fa-key me-2"></i>RESET PASSWORD</h1>
-        <p class="subtitle">Update your password and get back to your coffee routine.</p>
+    <main class="signup-card">
+        <h1 class="brand"><i class="fas fa-user-plus me-2"></i>Create Account</h1>
+        <p class="subtitle">Join and start ordering from the cafeteria.</p>
 
         <?php if (!empty($errors) && $errors[0] !== ""): ?>
             <ul class="alert alert-danger mb-3">
@@ -177,52 +183,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forget_password'])) {
             </ul>
         <?php endif; ?>
 
-        <form method="post">
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
             <div class="mb-3">
-                <label class="form-label" for="email">Email Address</label>
-                <input class="form-control" id="email" type="email" name="email" placeholder="Enter your email" required>
+                <label class="form-label">Name</label>
+                <input class="form-control" type="text" name="name" value="<?= $oldName ?>" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="new_password">New Password</label>
+                <label class="form-label">Email</label>
+                <input class="form-control" type="email" name="email" value="<?= $oldEmail ?>" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
                 <div class="password-wrap">
-                    <input class="form-control password-input" id="new_password" type="password" name="new_password" placeholder="Min 6 characters" required>
-                    <button class="password-toggle" type="button" data-target="new_password" aria-label="Show password">
-                        <i class="fa-regular fa-eye"></i>
+                    <input id="passwordInput" class="form-control password-input" type="password" name="password" required>
+                    <button class="password-toggle" type="button" id="passwordToggle" aria-label="Show password">
+                        <i class="fa-regular fa-eye" id="passwordToggleIcon"></i>
                     </button>
                 </div>
             </div>
 
             <div class="mb-4">
-                <label class="form-label" for="confirm_password">Confirm New Password</label>
-                <div class="password-wrap">
-                    <input class="form-control password-input" id="confirm_password" type="password" name="confirm_password" placeholder="Repeat password" required>
-                    <button class="password-toggle" type="button" data-target="confirm_password" aria-label="Show password">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
-                </div>
+                <label class="form-label">Profile Image</label>
+                <input class="form-control" type="file" name="image" accept=".jpg,.jpeg,.png,.jfif,.webp,image/jpeg,image/png,image/webp" required>
             </div>
 
-            <button class="btn btn-reset" type="submit" name="forget_password">Update Password</button>
+            <button class="btn btn-signup" type="submit" name="signup">Sign Up</button>
         </form>
 
         <div class="mt-4 d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Already have an account?</span>
             <a class="helper-link" href="login.php">Back to Login</a>
         </div>
     </main>
 
     <script>
-        document.querySelectorAll('.password-toggle').forEach(function(toggleBtn) {
-            toggleBtn.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const input = document.getElementById(targetId);
-                const icon = this.querySelector('i');
-                const isHidden = input.type === 'password';
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordToggleIcon = document.getElementById('passwordToggleIcon');
 
-                input.type = isHidden ? 'text' : 'password';
-                this.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
-                icon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
-            });
+        passwordToggle.addEventListener('click', function() {
+            const isHidden = passwordInput.type === 'password';
+            passwordInput.type = isHidden ? 'text' : 'password';
+            passwordToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            passwordToggleIcon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
         });
     </script>
     <?php require_once __DIR__ . '/includes/navigation_lock.php'; ?>

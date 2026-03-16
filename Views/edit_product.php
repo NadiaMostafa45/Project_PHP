@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../app/Models/Product.php';
+require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 
-session_start();
+AuthMiddleware::checkAuth();
 
 $productModel = new \App\Models\Product();
 $error = current([$_GET['error'] ?? '']);

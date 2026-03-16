@@ -10,7 +10,6 @@ if (($_SESSION['role'] ?? 'user') !== 'admin') {
     exit;
 }
 
-// Get stats
 $db = \Config\Database::getInstance()->getConnection();
 
 $productCount = $db->query("SELECT COUNT(*) FROM products")->fetchColumn();
@@ -194,7 +193,6 @@ $recentOrders = $db->query("SELECT * FROM orders ORDER BY created_at DESC LIMIT 
     <div class="admin-content">
         <div class="container-fluid p-4 p-md-5">
 
-            <!-- Welcome Banner -->
             <div class="welcome-banner mb-5">
                 <h2 class="mb-2">Welcome back, Admin 👋</h2>
                 <p class="mb-0 opacity-75">Here's what's happening with your cafeteria today.</p>

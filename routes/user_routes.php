@@ -8,6 +8,7 @@ require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 use App\Controllers\UserController;
 
 \AuthMiddleware::startSession();
+\AuthMiddleware::checkAuth();
 
 $controller = new UserController();
 $action = $_GET['action'] ?? '';

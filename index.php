@@ -5,5 +5,5 @@ if (AuthMiddleware::isAuthenticated()) {
     AuthMiddleware::redirectByRole();
 }
 
-header('Location: Views/login.php');
+header('Location: Views/home.php');
 exit;

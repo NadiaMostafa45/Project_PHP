@@ -4,8 +4,7 @@ require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../app/Models/Product.php';
 require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 
-
-AuthMiddleware::checkAuth();
+AuthMiddleware::startSession();
 
 $displayName = 'Guest';
 $profileImage = 'default.png';
@@ -133,6 +132,15 @@ if (isset($_GET['action'])) {
             padding: 6px 12px;
             border-radius: 999px;
             box-shadow: 0 6px 18px rgba(67, 40, 24, 0.12);
+            text-decoration: none;
+            color: var(--espresso);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .profile-pill:hover {
+            color: var(--espresso);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(67, 40, 24, 0.16);
         }
 
         .profile-pill img {
@@ -293,6 +301,22 @@ if (isset($_GET['action'])) {
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .room-dropdown.is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+        }
+
+        .room-required-dot {
+            display: none;
+            color: #dc3545;
+            font-weight: 900;
+            margin-left: 6px;
+        }
+
+        .room-required-dot.show {
+            display: inline;
+        }
+
         .room-options {
             position: absolute;
             top: 110%;
@@ -374,13 +398,13 @@ if (isset($_GET['action'])) {
             <div class="navbar-nav ms-auto align-items-center">
                 <a class="nav-link px-3 fw-bold" href="home.php">Home</a>
                 <a class="nav-link px-3" href="my_orders.php">My Orders</a>
-                <div class="ms-4 profile-pill">
+                <a class="ms-4 profile-pill" href="myprofile.php" title="My Profile">
                     <img src="<?= htmlspecialchars($profileImagePath) ?>" alt="Profile">
                     <div>
                         <span class="small text-muted me-1">Hi,</span>
                         <span class="fw-800"><?= htmlspecialchars($displayName) ?></span>
                     </div>
-                </div>
+                </a>
                 <a class="btn-logout" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
             </div>
         </div>
@@ -427,7 +451,7 @@ if (isset($_GET['action'])) {
                         <?php endif; ?>
                     </div>
 
-                    <form action="../routes/process_order.php" method="POST">
+                    <form action="../routes/process_order.php" method="POST" id="orderForm">
                         <div class="items-list" style="max-height: 350px; overflow-y: auto;">
                             <?php
                             $total = 0;
@@ -464,7 +488,7 @@ if (isset($_GET['action'])) {
                         </div>
 
                         <div class="mt-3">
-                            <label class="deliver-label">Deliver to</label>
+                            <label class="deliver-label">Deliver to <span id="roomRequiredDot" class="room-required-dot">•</span></label>
                             <div class="select-wrapper">
                                 <div class="room-dropdown" id="roomDropdown">
                                     <span id="selectedRoom">Select Room</span>
@@ -494,10 +518,12 @@ if (isset($_GET['action'])) {
     </div>
 
     <script>
+        const orderForm = document.getElementById('orderForm');
         const dropdown = document.getElementById('roomDropdown');
         const optionsList = document.getElementById('roomOptions');
         const selectedText = document.getElementById('selectedRoom');
         const hiddenInput = document.getElementById('roomInput');
+        const roomRequiredDot = document.getElementById('roomRequiredDot');
 
         dropdown.addEventListener('click', () => {
             optionsList.classList.toggle('show');
@@ -509,7 +535,8 @@ if (isset($_GET['action'])) {
                 selectedText.innerText = this.innerText;
                 hiddenInput.value = val;
                 optionsList.classList.remove('show');
-                dropdown.style.borderColor = 'var(--cappuccino)';
+                dropdown.classList.remove('is-invalid');
+                roomRequiredDot.classList.remove('show');
             });
         });
 
@@ -518,7 +545,16 @@ if (isset($_GET['action'])) {
                 optionsList.classList.remove('show');
             }
         }
+
+        orderForm.addEventListener('submit', function(event) {
+            if (!hiddenInput.value) {
+                event.preventDefault();
+                dropdown.classList.add('is-invalid');
+                roomRequiredDot.classList.add('show');
+            }
+        });
     </script>
+    <?php require_once __DIR__ . '/includes/navigation_lock.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

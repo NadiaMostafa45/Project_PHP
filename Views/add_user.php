@@ -20,7 +20,6 @@ if (isset($_SESSION['add_user_errors'])) {
 $oldName = htmlspecialchars($old['name'] ?? '');
 $oldEmail = htmlspecialchars($old['email'] ?? '');
 $oldRole = $old['role'] ?? 'user';
-$oldRoomNo = htmlspecialchars($old['room_no'] ?? '');
 $oldExt = htmlspecialchars($old['ext'] ?? '');
 
 $fieldErrors = is_array($errors) ? $errors : [];
@@ -107,11 +106,6 @@ $fieldErrors = is_array($errors) ? $errors : [];
                         <?php if (!empty($fieldErrors['role'])): ?>
                             <small class="text-danger d-block mt-1"><?= htmlspecialchars($fieldErrors['role']) ?></small>
                         <?php endif; ?>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Room No</label>
-                        <input type="number" name="room_no" class="form-control" min="1" value="<?= $oldRoomNo ?>" style="border-radius: 14px; border: 1px solid rgba(67, 40, 24, 0.2); padding: 12px 14px;">
                     </div>
 
                     <div class="mb-3">

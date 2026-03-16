@@ -3,10 +3,12 @@
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../app/Models/Product.php';
 require_once __DIR__ . '/../app/Controllers/ProductController.php';
+require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
 
 use App\Controllers\ProductController;
 
 session_start();
+AuthMiddleware::checkAuth();
 
 $controller = new ProductController();
 $action = $_GET['action'] ?? '';

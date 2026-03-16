@@ -127,11 +127,27 @@ class UserController {
             exit;
         }
 
+        \AuthMiddleware::startSession();
+        $currentUserId = (int)($_SESSION['user_id'] ?? 0);
+        $isAdmin = (($_SESSION['role'] ?? 'user') === 'admin');
+
+        $user = new User();
+        $existingUser = $user->getById($id);
+        if (!$existingUser) {
+            header("Location: ../Views/users.php?error=User not found");
+            exit;
+        }
+
+        if (!$isAdmin && $currentUserId !== $id) {
+            header("Location: ../Views/home.php");
+            exit;
+        }
+
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
-        $role = $_POST['role'] ?? 'user';
-        $roomNo = !empty($_POST['room_no']) ? (int) $_POST['room_no'] : null;
-        $ext = !empty($_POST['ext']) ? trim($_POST['ext']) : null;
+        $role = $isAdmin ? ($_POST['role'] ?? 'user') : ($existingUser['role'] ?? 'user');
+        $roomNo = $isAdmin ? (!empty($_POST['room_no']) ? (int) $_POST['room_no'] : null) : ($existingUser['room_no'] ?? null);
+        $ext = $isAdmin ? (!empty($_POST['ext']) ? trim($_POST['ext']) : null) : ($existingUser['ext'] ?? null);
         $passwordRaw = $_POST['password'] ?? '';
 
         $errors = [];
@@ -146,15 +162,13 @@ class UserController {
             $errors['email'] = 'Please enter a valid email address.';
         }
 
-        if (!in_array($role, ['user', 'admin'], true)) {
+        if ($isAdmin && !in_array($role, ['user', 'admin'], true)) {
             $errors['role'] = 'Invalid role selected.';
         }
 
         if ($passwordRaw !== '' && strlen($passwordRaw) < 6) {
             $errors['password'] = 'Password must be at least 6 characters.';
         }
-
-        $user = new User();
 
         if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             if ($user->emailExistsForOtherUser($email, $id)) {
@@ -163,7 +177,6 @@ class UserController {
         }
 
         if (!empty($errors)) {
-            \AuthMiddleware::startSession();
             $_SESSION['edit_user_errors'] = $errors;
             $_SESSION['edit_user_old'] = [
                 'name' => $name,
@@ -192,10 +205,13 @@ class UserController {
 
         $user->update($id, $name, $email, $role, $roomNo, $ext, $imageName, $password);
 
-        \AuthMiddleware::startSession();
         unset($_SESSION['edit_user_errors'], $_SESSION['edit_user_old']);
 
-        header("Location: ../Views/users.php?success=updated");
+        if ($isAdmin) {
+            header("Location: ../Views/users.php?success=updated");
+        } else {
+            header("Location: ../Views/myprofile.php?success=updated");
+        }
         exit;
     }
 }
