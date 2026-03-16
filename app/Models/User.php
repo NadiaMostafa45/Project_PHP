@@ -23,6 +23,22 @@ class User {
         return $stmt->execute([$name, $email, $password, $role, $roomNo, $ext, $image]);
     }
 
+    public function emailExists($email) {
+        $query = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$email]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function emailExistsForOtherUser($email, $id) {
+        $query = "SELECT 1 FROM users WHERE email = ? AND id != ? LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$email, $id]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
     public function getAll($search = null) {
 
     if ($search) {

@@ -10,7 +10,7 @@ class Database
     private static $instance = null;
     private $conn;
 
-    private $host = "localhost:3307";
+    private $host = "localhost";
     private $db_name = "cafeteria";
     private $username = "root";
     private $password = "";

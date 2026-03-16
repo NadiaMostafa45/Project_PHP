@@ -54,6 +54,25 @@ class UserController {
                 exit;
             }
 
+            $user = new User();
+
+            if ($user->emailExists($email)) {
+                \AuthMiddleware::startSession();
+                $_SESSION['add_user_errors'] = [
+                    'email' => 'This email is already registered.'
+                ];
+                $_SESSION['add_user_old'] = [
+                    'name' => $name,
+                    'email' => $email,
+                    'role' => $role,
+                    'room_no' => $roomNo,
+                    'ext' => $ext,
+                ];
+
+                header("Location: ../Views/add_user.php?error=1");
+                exit;
+            }
+
             $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
 
             $imageName = null;
@@ -68,8 +87,6 @@ class UserController {
 
                 move_uploaded_file($tmp, $path);
             }
-
-            $user = new User();
 
             $user->create($name, $email, $password, $role, $roomNo, $ext, $imageName);
 
@@ -137,6 +154,14 @@ class UserController {
             $errors['password'] = 'Password must be at least 6 characters.';
         }
 
+        $user = new User();
+
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if ($user->emailExistsForOtherUser($email, $id)) {
+                $errors['email'] = 'This email is already registered.';
+            }
+        }
+
         if (!empty($errors)) {
             \AuthMiddleware::startSession();
             $_SESSION['edit_user_errors'] = $errors;
@@ -165,7 +190,6 @@ class UserController {
             move_uploaded_file($tmp, $path);
         }
 
-        $user = new User();
         $user->update($id, $name, $email, $role, $roomNo, $ext, $imageName, $password);
 
         \AuthMiddleware::startSession();
