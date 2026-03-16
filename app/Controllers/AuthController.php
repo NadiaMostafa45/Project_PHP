@@ -184,8 +184,8 @@ class AuthController
                     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                     $role = 'user';
 
-                    $insertStmt = $db->prepare('INSERT INTO users (name, email, password, role, room_no, ext, image) VALUES (?, ?, ?, ?, ?, ?, ?)');
-                    $insertStmt->execute([$name, $email, $hashedPassword, $role, null, null, $imageName]);
+                    $insertStmt = $db->prepare('INSERT INTO users (name, email, password, role, ext, image) VALUES (?, ?, ?, ?, ?, ?)');
+                    $insertStmt->execute([$name, $email, $hashedPassword, $role, null, $imageName]);
 
                     $userId = (int)$db->lastInsertId();
 

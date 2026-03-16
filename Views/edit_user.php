@@ -40,7 +40,6 @@ if (!$user) {
 $oldName = htmlspecialchars($old['name'] ?? $user['name']);
 $oldEmail = htmlspecialchars($old['email'] ?? $user['email']);
 $oldRole = $old['role'] ?? $user['role'];
-$oldRoomNo = htmlspecialchars($old['room_no'] ?? $user['room_no']);
 $oldExt = htmlspecialchars($old['ext'] ?? $user['ext']);
 $fieldErrors = is_array($errors) ? $errors : [];
 $pageTitle = $isSelfEdit ? 'Edit Profile' : 'Edit User';
@@ -183,11 +182,6 @@ if (!empty($user['image']) && file_exists(__DIR__ . '/../public/assets/images/us
                                 <?php if (!empty($fieldErrors['role'])): ?>
                                     <small class="text-danger d-block mt-1"><?= htmlspecialchars($fieldErrors['role']) ?></small>
                                 <?php endif; ?>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Room No</label>
-                                <input type="number" name="room_no" class="form-control" min="1" value="<?= $oldRoomNo ?>">
                             </div>
 
                             <div class="mb-3">

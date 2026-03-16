@@ -13,14 +13,14 @@ class User {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function create($name, $email, $password, $role, $roomNo, $ext, $image) {
+    public function create($name, $email, $password, $role, $ext, $image) {
 
-        $query = "INSERT INTO users (name, email, password, role, room_no, ext, image)
-                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO users (name, email, password, role, ext, image)
+                  VALUES (?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->db->prepare($query);
 
-        return $stmt->execute([$name, $email, $password, $role, $roomNo, $ext, $image]);
+        return $stmt->execute([$name, $email, $password, $role, $ext, $image]);
     }
 
     public function emailExists($email) {
@@ -68,12 +68,11 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($id, $name, $email, $role, $roomNo, $ext, $image = null, $password = null) {
+    public function update($id, $name, $email, $role, $ext, $image = null, $password = null) {
         $fields = [
             'name' => $name,
             'email' => $email,
             'role' => $role,
-            'room_no' => $roomNo,
             'ext' => $ext,
         ];
 

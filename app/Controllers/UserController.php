@@ -14,7 +14,6 @@ class UserController {
             $email = trim($_POST['email'] ?? '');
             $passwordRaw = $_POST['password'] ?? '';
             $role = $_POST['role'] ?? 'user';
-            $roomNo = !empty($_POST['room_no']) ? (int) $_POST['room_no'] : null;
             $ext = !empty($_POST['ext']) ? trim($_POST['ext']) : null;
 
             $errors = [];
@@ -46,7 +45,6 @@ class UserController {
                     'name' => $name,
                     'email' => $email,
                     'role' => $role,
-                    'room_no' => $roomNo,
                     'ext' => $ext,
                 ];
 
@@ -65,7 +63,6 @@ class UserController {
                     'name' => $name,
                     'email' => $email,
                     'role' => $role,
-                    'room_no' => $roomNo,
                     'ext' => $ext,
                 ];
 
@@ -88,7 +85,7 @@ class UserController {
                 move_uploaded_file($tmp, $path);
             }
 
-            $user->create($name, $email, $password, $role, $roomNo, $ext, $imageName);
+            $user->create($name, $email, $password, $role, $ext, $imageName);
 
             \AuthMiddleware::startSession();
             unset($_SESSION['add_user_errors'], $_SESSION['add_user_old']);
@@ -146,7 +143,6 @@ class UserController {
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $role = $isAdmin ? ($_POST['role'] ?? 'user') : ($existingUser['role'] ?? 'user');
-        $roomNo = $isAdmin ? (!empty($_POST['room_no']) ? (int) $_POST['room_no'] : null) : ($existingUser['room_no'] ?? null);
         $ext = $isAdmin ? (!empty($_POST['ext']) ? trim($_POST['ext']) : null) : ($existingUser['ext'] ?? null);
         $passwordRaw = $_POST['password'] ?? '';
 
@@ -182,7 +178,6 @@ class UserController {
                 'name' => $name,
                 'email' => $email,
                 'role' => $role,
-                'room_no' => $roomNo,
                 'ext' => $ext,
             ];
 
@@ -203,7 +198,7 @@ class UserController {
             move_uploaded_file($tmp, $path);
         }
 
-        $user->update($id, $name, $email, $role, $roomNo, $ext, $imageName, $password);
+        $user->update($id, $name, $email, $role, $ext, $imageName, $password);
 
         unset($_SESSION['edit_user_errors'], $_SESSION['edit_user_old']);
 
