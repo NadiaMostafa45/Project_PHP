@@ -139,6 +139,25 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-user-plus"></i> Add User
             </a>
         </li>
+
+           <li>
+            <a href="manual_order.php" class="<?= $currentPage === 'manual_order.php' ? 'active' : '' ?>">
+                <i class="fas fa-plus-circle"></i> Manual Order
+            </a>
+        </li>
+
+           <li>
+            <a href="orders.php" class="<?= $currentPage === 'orders.php' ? 'active' : '' ?>">
+                <i class="fas fa-receipt"></i> Orders
+            </a>
+        </li>
+
+           <li>
+            <a href="checks.php" class="<?= $currentPage === 'checks.php' ? 'active' : '' ?>">
+                <i class="fas fa-chart-line"></i> Checks
+            </a>
+        </li>
+
     </ul>
 
     <div class="sidebar-section">Products</div>

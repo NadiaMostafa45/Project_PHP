@@ -41,7 +41,7 @@ class Database
 
             $this->ensureProductsSchema();
         } catch (PDOException $e) {
-            die("❌ Connection Error: " . $e->getMessage());
+            die("Connection Error: " . $e->getMessage());
         }
     }
 
