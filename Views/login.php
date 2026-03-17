@@ -111,9 +111,34 @@ $oldEmail = htmlspecialchars($_POST['email'] ?? '');
         }
 
         .btn-login:hover {
+            background: var(--cappuccino);
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(67, 40, 24, 0.2);
-            color: #fff;
+            color: var(--espresso);
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #7e5a43;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .password-toggle:hover {
+            color: var(--espresso);
+        }
+
+        .password-input {
+            padding-right: 42px;
         }
 
         .helper-link {
@@ -151,7 +176,7 @@ $oldEmail = htmlspecialchars($_POST['email'] ?? '');
 
     <main class="login-card">
         <h1 class="brand"><i class="fas fa-mug-hot me-2"></i>ITI CAFETERIA</h1>
-        <p class="subtitle mb-4">Welcome back. Sign in to continue your coffee ritual.</p>
+        <p class="subtitle mb-4">Sign in First to continue your coffee ritual.</p>
 
         <?php if (isset($_GET['message'])): ?>
             <div class="alert alert-success" role="alert">
@@ -174,16 +199,35 @@ $oldEmail = htmlspecialchars($_POST['email'] ?? '');
             </div>
             <div class="mb-4">
                 <label class="form-label">Password</label>
-                <input class="form-control" type="password" name="password" required>
+                <div class="password-wrap">
+                    <input id="passwordInput" class="form-control password-input" type="password" name="password" required>
+                    <button class="password-toggle" type="button" id="passwordToggle" aria-label="Show password">
+                        <i class="fa-regular fa-eye" id="passwordToggleIcon"></i>
+                    </button>
+                </div>
             </div>
             <button class="btn btn-login" type="submit" name="login">Login</button>
         </form>
 
         <div class="mt-4 d-flex justify-content-between align-items-center">
             <a class="helper-link" href="forget_password.php">Forgot password?</a>
-            <a class="helper-link" href="../index.php">Back to start</a>
+            <a class="helper-link" href="signup.php">Sign up</a>
         </div>
     </main>
+
+    <script>
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordToggleIcon = document.getElementById('passwordToggleIcon');
+
+        passwordToggle.addEventListener('click', function() {
+            const isHidden = passwordInput.type === 'password';
+            passwordInput.type = isHidden ? 'text' : 'password';
+            passwordToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            passwordToggleIcon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        });
+    </script>
+    <?php require_once __DIR__ . '/includes/navigation_lock.php'; ?>
 
 </body>
 

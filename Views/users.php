@@ -191,7 +191,6 @@ $users = $controller->index();
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Room</th>
                             <th>Ext</th>
                             <th>Actions</th>
                         </tr>
@@ -213,7 +212,6 @@ $users = $controller->index();
                                         <?= htmlspecialchars($user['role']) ?>
                                     </span>
                                 </td>
-                                <td><?= htmlspecialchars($user['room_no'] ?? '—') ?></td>
                                 <td><?= htmlspecialchars($user['ext'] ?? '—') ?></td>
                                 <td>
                                     <a href="edit_user.php?id=<?= $user['id'] ?>" class="btn btn-sm btn-edit">

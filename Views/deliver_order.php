@@ -1,6 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../app/Middleware/AuthMiddleware.php';
+
+AuthMiddleware::checkAuth();
 
 $db = \Config\Database::getInstance()->getConnection();
 

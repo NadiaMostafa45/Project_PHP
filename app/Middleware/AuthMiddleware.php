@@ -6,16 +6,22 @@ class AuthMiddleware
         $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
         $parts = array_values(array_filter(explode('/', $scriptName), static fn($p) => $p !== ''));
 
-        $viewsIndex = array_search('Views', $parts, true);
-        if ($viewsIndex !== false) {
-            $baseParts = array_slice($parts, 0, $viewsIndex + 1);
-        } else {
-            $baseParts = $parts;
-            if (!empty($baseParts)) {
-                array_pop($baseParts);
+        $rootMarkers = ['Views', 'routes', 'app', 'config', 'public', 'storage'];
+        $baseParts = $parts;
+
+        foreach ($rootMarkers as $marker) {
+            $markerIndex = array_search($marker, $parts, true);
+            if ($markerIndex !== false) {
+                $baseParts = array_slice($parts, 0, $markerIndex);
+                break;
             }
-            $baseParts[] = 'Views';
         }
+
+        if (!empty($baseParts) && substr((string)end($baseParts), -4) === '.php') {
+            array_pop($baseParts);
+        }
+
+        $baseParts[] = 'Views';
 
         $base = '/' . implode('/', $baseParts);
         return rtrim($base, '/') . '/' . ltrim($file, '/');

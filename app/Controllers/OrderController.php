@@ -25,7 +25,11 @@ class OrderController {
          
             $userId = $_SESSION['user_id'] ?? 1; 
             $notes = isset($_POST['notes']) ? htmlspecialchars($_POST['notes']) : "";
-            $room = isset($_POST['room_no']) ? $_POST['room_no'] : null;
+            $room = isset($_POST['room_no']) ? trim((string)$_POST['room_no']) : '';
+            if ($room === '') {
+                header("Location: ../Views/home.php?error=room_required");
+                exit;
+            }
             $cart = $_SESSION['cart'];
 
             $grandTotal = 0;

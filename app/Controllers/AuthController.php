@@ -112,4 +112,106 @@ class AuthController
         }
         return $error;
     }
+
+    function register()
+    {
+        $error = [];
+
+        if (isset($_POST['signup'])) {
+            $name = $this->validateInput($_POST['name'] ?? '');
+            $email = $this->validateInput($_POST['email'] ?? '');
+            $password = $_POST['password'] ?? '';
+            $image = $_FILES['image'] ?? null;
+
+            if ($name === '') {
+                $error[] = 'Name is required';
+            }
+
+            if ($email === '') {
+                $error[] = 'Email is required';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error[] = 'Invalid email format';
+            }
+
+            if ($password === '') {
+                $error[] = 'Password is required';
+            } elseif (strlen($password) < 6) {
+                $error[] = 'Password must be at least 6 characters.';
+            }
+
+            if (!$image || ($image['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                $error[] = 'Profile image is required';
+            }
+
+            $imageName = null;
+            if (empty($error) && $image && ($image['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                $allowedExt = ['jpg', 'jpeg', 'png', 'jfif', 'webp'];
+                $ext = strtolower(pathinfo($image['name'], PATHINFO_EXTENSION));
+
+                if (!in_array($ext, $allowedExt, true)) {
+                    $error[] = 'Profile image must be JPG, JPEG, PNG, JFIF, or WEBP.';
+                }
+
+                if (($image['size'] ?? 0) > (2 * 1024 * 1024)) {
+                    $error[] = 'Profile image must be 2MB or less.';
+                }
+
+                if (empty($error)) {
+                    $safeOriginalName = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($image['name']));
+                    $imageName = time() . '_' . $safeOriginalName;
+
+                    $uploadDir = __DIR__ . '/../../public/assets/images/users/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+
+                    if (!move_uploaded_file($image['tmp_name'], $uploadDir . $imageName)) {
+                        $error[] = 'Failed to upload profile image.';
+                    }
+                }
+            }
+
+            if (empty($error)) {
+                try {
+                    $db = Database::getInstance()->getConnection();
+
+                    $checkStmt = $db->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+                    $checkStmt->execute([$email]);
+                    if ($checkStmt->fetch(\PDO::FETCH_ASSOC)) {
+                        return ['This email is already registered.'];
+                    }
+
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    $role = 'user';
+
+                    $insertStmt = $db->prepare('INSERT INTO users (name, email, password, role, ext, image) VALUES (?, ?, ?, ?, ?, ?)');
+                    $insertStmt->execute([$name, $email, $hashedPassword, $role, null, $imageName]);
+
+                    $userId = (int)$db->lastInsertId();
+
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+
+                    session_regenerate_id(true);
+                    $_SESSION['user'] = [
+                        'id' => $userId,
+                        'name' => $name,
+                        'email' => $email,
+                        'role' => $role,
+                        'image' => $imageName,
+                    ];
+                    $_SESSION['user_id'] = $userId;
+                    $_SESSION['role'] = $role;
+
+                    header('Location: home.php');
+                    exit;
+                } catch (\PDOException $e) {
+                    $error[] = 'Signup failed due to a server error.';
+                }
+            }
+        }
+
+        return $error;
+    }
 }
